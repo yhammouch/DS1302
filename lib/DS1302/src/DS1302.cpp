@@ -21,87 +21,74 @@ void DS1302::begin() {
 
 void DS1302::end() {
     digitalWrite(_ce_pin, LOW);
+    delayMicroseconds(4);
 }
 
 void DS1302::_write_byte(const uint8_t data, uint8_t release) {
-    uint8_t i;
-    for(i = 0; i < 8; i++) {
-        digitalWrite(_data_pin, );
+
+    for(uint8_t i = 0; i < 8; i++) {
+        digitalWrite(_data_pin, (data >> i) & 0x01);
+        delayMicroseconds(DELAY);
+        digitalWrite(_sclk_pin, HIGH);
+        delayMicroseconds(DELAY);
+
+        if (release && i == 7) { // Write followed by a read
+            pinMode(_data_pin, INPUT);
+        } else {
+            digitalWrite(_sclk_pin, LOW);
+            delayMicroseconds(DELAY);
+        }
     }
 }
+
 
 uint8_t DS1302::_read_byte() {
-    uint8_t state, retValue;
+    uint8_t data;
+    data = 0;
 
-    pinMode(_data_pin, INPUT);
-    //digitalWrite(_sclk_pin, LOW);
     for (uint8_t i = 0; i < 8; i++) {
-        state = digitalRead(_data_pin);
-        retValue |= (state << i);
         digitalWrite(_sclk_pin, HIGH);
-        delayMicroseconds(DELAY);    
+        delayMicroseconds(DELAY);
+
         digitalWrite(_sclk_pin, LOW);
+        delayMicroseconds(DELAY);
+        data |= digitalRead(_data_pin) << i;
     }
     
-    return retValue;
+    return data;
 }
 
-uint8_t DS1302::read_register(const uint8_t reg) {
-    uint8_t retValue = 0;
 
-    pinMode(_sclk_pin, OUTPUT);
-    digitalWrite(_sclk_pin, LOW);
-    digitalWrite(_ce_pin, HIGH);
+uint8_t DS1302::read_register(uint8_t address) {
+    uint8_t data;
 
-    uint8_t command_byte = 0x81;    // read operation from rtc
-    command_byte |= (reg << 1);     // add register
-    _write_byte(command_byte);
+    // set lowest bit in address (read operation)
+    address |= 0x01; 
 
-    // read register
-    pinMode(_data_pin, INPUT);
-    uint8_t state = 0;
-    for (uint8_t i = 0; i < 8; i++) {
-        state = digitalRead(_data_pin);
-        retValue |= (state << i);
-        digitalWrite(_sclk_pin, HIGH);
-        delayMicroseconds(DELAY);    
-        digitalWrite(_sclk_pin, LOW);
-    }
-    digitalWrite(_ce_pin, LOW);
+    begin();
 
-    if (DEBUG) {
-        Serial.print(F("[RTC] Read operation->command: "));
-        Serial.println(command_byte, BIN);
-        Serial.print(F("[RTC] Read operation->register value: "));
-        Serial.println(retValue, BIN);
-        Serial.print(F("[RTC] Read operation->register value (decoded): "));
-        Serial.println(_decode(retValue), DEC);
-    }
+    _write_byte(address, true);
+    data = _read_byte();
 
-    return retValue;
+    end();
+
+    return data;
 }
 
-void DS1302::write_register(const uint8_t reg, const uint8_t value) {
-    digitalWrite(_sclk_pin, LOW);
-    digitalWrite(_ce_pin, HIGH);
 
-    uint8_t command_byte = 0x80;    // read operation from rtc
-    command_byte |= (reg << 1);     // add register
+void DS1302::write_register(uint8_t address, uint8_t data) {
 
-    _write_byte(command_byte);
-    _write_byte(_encode(value));
+    // clear lowest bit of address (write operation)
+    address &= 0xFE;
 
-    digitalWrite(_ce_pin, LOW);
+    begin();
 
-    if (DEBUG) {
-        Serial.print(F("[RTC] Write operation->command: "));
-        Serial.println(command_byte, BIN);
-        Serial.print(F("[RTC] Write operation->value: "));
-        Serial.println(value, BIN);
-        Serial.print(F("[RTC] Write operation->encoded value: "));
-        Serial.println(_encode(value), BIN);
-    }
+    _write_byte(address, false);
+    _write_byte(data, false);
+
+    end();
 }
+
 
 uint8_t DS1302::_encode(const uint16_t value) {
     uint8_t encoded = 0;
@@ -115,6 +102,7 @@ uint16_t DS1302::_decode(const uint8_t value) {
     return decoded;
 }
 
+/*
 uint8_t DS1302::_decodeH(const uint8_t value) {
     uint8_t decoded;
 
@@ -164,3 +152,4 @@ uint8_t DS1302::_burst_read() {
 
 
 }
+*/

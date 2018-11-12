@@ -30,7 +30,17 @@ void setup() {
     tm.day = 6;
     tm.year = 18;
 
-    rtc.setTime(tm);
+    //rtc.setTime(tm);
+
+    rtc.write_register(RTC_SECONDS, rtc._encode(30));
+    uint8_t sec;
+    for (;;) {
+        sec = rtc.read_register(RTC_SECONDS);
+        Serial.print(F("Row seconds data (BIN): "));
+        Serial.println(sec, BIN);
+        printSerial("Seconds now: %u\n\r", rtc._decode(sec));
+        delay(1000);
+    }
 }
 
 void loop() {
@@ -38,9 +48,9 @@ void loop() {
     Serial.println(F("Hello world!"));
     tmElements tmNow;
 
-    tmNow = rtc.getTime();
-    printSerial("Time now is: %u:%u:%u\n\r", tmNow.hour, tmNow.minutes, tmNow.seconds);
-    printSerial("Date/Month/Day/Year: %u/%u/%u/%u\n\r", tmNow.date, tmNow.month, tmNow.day, tmNow.year+2000);
+    //tmNow = rtc.getTime();
+    //printSerial("Time now is: %u:%u:%u\n\r", tmNow.hour, tmNow.minutes, tmNow.seconds);
+    //printSerial("Date/Month/Day/Year: %u/%u/%u/%u\n\r", tmNow.date, tmNow.month, tmNow.day, tmNow.year+2000);
     delay(1000);
 }
 
