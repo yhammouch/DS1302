@@ -50,9 +50,9 @@ class DS1302 {
       uint8_t _read_byte();
       uint8_t _encode(const uint16_t value);
       uint16_t _decode(const uint8_t value);
+      uint8_t _decodeH(const uint8_t value);
     private:
       uint8_t _ce_pin, _sclk_pin, _data_pin;
-      uint8_t _decodeH(const uint8_t value);
       uint8_t _burst_read();
 };
 

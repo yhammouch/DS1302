@@ -32,13 +32,22 @@ void setup() {
 
     //rtc.setTime(tm);
 
-    rtc.write_register(RTC_SECONDS, rtc._encode(30));
-    uint8_t sec;
+    rtc.write_register(RTC_SECONDS, rtc._encode(00));
+    rtc.write_register(RTC_MINUTES, rtc._encode(00));
+    rtc.write_register(RTC_HOUR, rtc._encode(23));
+    uint8_t sec, minutes, hour;
     for (;;) {
         sec = rtc.read_register(RTC_SECONDS);
-        Serial.print(F("Row seconds data (BIN): "));
-        Serial.println(sec, BIN);
-        printSerial("Seconds now: %u\n\r", rtc._decode(sec));
+        minutes = rtc.read_register(RTC_MINUTES);
+        hour = rtc.read_register(RTC_HOUR);
+
+
+        printSerial("Time now: %u:%u:%u\r\n", rtc._decodeH(hour), rtc._decode(minutes), rtc._decode(sec));
+        //Serial.print(F("Row seconds data (BIN): "));
+        //Serial.println(sec, BIN);
+        //printSerial("Seconds now: %u\n\r", rtc._decode(sec));
+        //printSerial("Row hour now: %u\n\r", hour);
+        //printSerial("Hour now: %u\n\r", rtc._decodeH(hour));
         delay(1000);
     }
 }
