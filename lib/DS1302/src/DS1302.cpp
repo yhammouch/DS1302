@@ -118,41 +118,30 @@ uint8_t DS1302::_decodeH(const uint8_t value) {
 
 
 tmElements DS1302::getTime() {
+    rtcRegisters data;
     tmElements tm;
-    uint8_t rtc_register[8] = {0};
 
-    for (uint8_t i = 0; i < 3; i++) {
-        rtc_register[i] = read_register(i);
-        delay(1);
-    }
+    _burst_read((uint8_t *) &data);
 
-    tm.seconds  = _decode(rtc_register[0]);
-    tm.minutes  = _decode(rtc_register[1]);
-    tm.hour     = _decodeH(rtc_register[2]);
-    //tm.date     = _decode(rtc_register[3] & 0x3F);
-    //tm.month    = _decode(rtc_register[4] & 0x1F);
-    //tm.day      = _decode(rtc_register[5] & 0x07);
-    //tm.year     = _decode(rtc_register[6]);
+    tm.seconds  = _decode(data.secondsRegister);
+    tm.minutes  = _decode(data.minutesRegister);
+    tm.hour     = _decodeH(data.hourRegister);
+    tm.date     = _decode(data.dateRegister);
+    tm.month    = _decode(data.monthRegister);
+    tm.day      = _decode(data.dayRegister);
+    tm.year     = _decode(data.yearRegister);
 
     return tm;
 }
 
-/*
-void DS1302::setTime(tmElements tm) {
-    write_register(RTC_SECONDS, tm.seconds);
-    write_register(RTC_MINUTES, tm.minutes);
-    write_register(RTC_HOUR,    tm.hour);
-    write_register(RTC_DATE,    tm.date);
-    write_register(RTC_MONTH,   tm.month);
-    write_register(RTC_DAY,     tm.day);
-    write_register(RTC_YEAR,    tm.year);
-}
-
-uint8_t DS1302::_burst_read() {
+void DS1302::_burst_read(uint8_t *p) {    
     begin();
 
-    _write_byte(RTC_CLOCK_BURST_READ);
+    _write_byte(RTC_CLOCK_BURST_READ, true);
 
-
+    for (uint8_t i = 0; i < 8; i++) {
+        *p++ = _read_byte();
+    }
+    
+    end();
 }
-*/

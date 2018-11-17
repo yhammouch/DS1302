@@ -25,7 +25,15 @@
 
 #define DELAY       (1)
 
-// RAM
+struct rtcRegisters {
+  uint8_t secondsRegister;
+  uint8_t minutesRegister;
+  uint8_t hourRegister;
+  uint8_t dateRegister;
+  uint8_t monthRegister;
+  uint8_t dayRegister;
+  uint8_t yearRegister;
+};
 
 struct tmElements {
   uint8_t seconds;
@@ -45,7 +53,7 @@ class DS1302 {
       uint8_t read_register(uint8_t address);
       void write_register(uint8_t reg, uint8_t data);
       tmElements getTime();
-      void setTime(tmElements tm);
+      //void setTime(tmElements tm);
       void _write_byte(const uint8_t data, uint8_t release);
       uint8_t _read_byte();
       uint8_t _encode(const uint16_t value);
@@ -53,7 +61,7 @@ class DS1302 {
       uint8_t _decodeH(const uint8_t value);
     private:
       uint8_t _ce_pin, _sclk_pin, _data_pin;
-      uint8_t _burst_read();
+      void _burst_read(uint8_t *p);
 };
 
 #endif
