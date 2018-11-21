@@ -23,18 +23,14 @@ void setup() {
 
     tmElements tm;
     tm.seconds = 0;
-    tm.minutes = 17;
+    tm.minutes = 43;
     tm.hour = 23;
-    tm.date = 2;
+    tm.date = 21;
     tm.month = 11;
-    tm.day = 6;
+    tm.day = 4;
     tm.year = 18;
 
-    //rtc.setTime(tm);
-
-    rtc.write_register(RTC_SECONDS, rtc._encode(00));
-    rtc.write_register(RTC_MINUTES, rtc._encode(00));
-    rtc.write_register(RTC_HOUR, rtc._encode(23));
+    rtc.setTime(tm);
 }
 
 void loop() {

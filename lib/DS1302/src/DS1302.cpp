@@ -145,3 +145,23 @@ void DS1302::_burst_read(uint8_t *p) {
     
     end();
 }
+
+void DS1302::setTime(tmElements tm) {
+    begin();
+
+    uint8_t data[8] = {0};
+    data[0] = _encode(tm.seconds);
+    data[1] = _encode(tm.minutes);
+    data[2] = _encode(tm.hour);
+    data[3] = _encode(tm.date);
+    data[4] = _encode(tm.month);
+    data[5] = _encode(tm.day);
+    data[6] = _encode(tm.year);
+
+    _write_byte(RTC_CLOCK_BURST_WRITE, false);
+
+    for (uint8_t i = 0; i < 8; i++) {
+        _write_byte(data[i], false);
+    }
+    end();
+}

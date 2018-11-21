@@ -53,7 +53,7 @@ class DS1302 {
       uint8_t read_register(uint8_t address);
       void write_register(uint8_t reg, uint8_t data);
       tmElements getTime();
-      //void setTime(tmElements tm);
+      void setTime(tmElements tm);
       void _write_byte(const uint8_t data, uint8_t release);
       uint8_t _read_byte();
       uint8_t _encode(const uint16_t value);
